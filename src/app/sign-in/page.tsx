@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,6 @@ export default function SignInPage() {
     setError("");
     setIsLoading(true);
 
-    // Basic validation
     if (!email || !password) {
       setError("Please fill in all fields");
       setIsLoading(false);
@@ -35,14 +35,20 @@ export default function SignInPage() {
     }
 
     try {
-      // TODO: Implement actual authentication logic here
-      // For now, simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Redirect to home page after successful login
-      router.push("/");
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Invalid email or password");
+      } else {
+        router.push("/");
+        router.refresh();
+      }
     } catch {
-      setError("Invalid email or password");
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +70,11 @@ export default function SignInPage() {
                 {error}
               </div>
             )}
+            <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+              <strong>Demo credentials:</strong><br />
+              Email: demo@example.com<br />
+              Password: password123
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

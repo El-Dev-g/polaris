@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,6 @@ export default function SignUpPage() {
     setError("");
     setIsLoading(true);
 
-    // Basic validation
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       setError("Please fill in all fields");
       setIsLoading(false);
@@ -50,12 +51,26 @@ export default function SignUpPage() {
     }
 
     try {
-      // TODO: Implement actual registration logic here
-      // For now, simulate a successful registration
+      // In a real app, you would call an API to create the user
+      // For demo purposes, we'll just show success and redirect to sign-in
       await new Promise((resolve) => setTimeout(resolve, 1000));
       
-      // Redirect to sign-in page after successful registration
-      router.push("/sign-in");
+      setSuccess(true);
+      
+      // Auto sign-in after registration (optional)
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.ok) {
+        router.push("/");
+        router.refresh();
+      } else {
+        // If auto sign-in fails, redirect to sign-in page
+        router.push("/sign-in?registered=true");
+      }
     } catch {
       setError("An error occurred. Please try again.");
     } finally {
@@ -79,6 +94,14 @@ export default function SignUpPage() {
                 {error}
               </div>
             )}
+            {success && (
+              <div className="rounded-md bg-green-500/10 p-3 text-sm text-green-500">
+                Account created successfully! Signing you in...
+              </div>
+            )}
+            <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+              <strong>Note:</strong> This is a demo. In production, user registration would be stored in a database.
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First name</Label>
