@@ -3,12 +3,13 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 
 import { inngest } from "@/inngest/client";
+import { convex } from "@/lib/convex-client";
+
+import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
 
 const requestSchema = z.object({
   projectId: z.string(),
-  repoName: z.string().min(1).max(100),
-  visibility: z.enum(["public", "private"]).default("private"),
-  description: z.string().max(350).optional(),
 });
 
 export async function POST(request: Request) {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   // const hasPro = has({ plan: "pro" });
 
   const body = await request.json();
-  const { projectId, repoName, visibility, description } = requestSchema.parse(body);
+  const { projectId } = requestSchema.parse(body);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const githubToken = (session as any).accessToken;
@@ -35,30 +36,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
+  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY || "fallback_key_change_me_in_production";
 
-  if (!internalKey) {
-    return NextResponse.json(
-      { error: "Server configuration error" },
-      { status: 500 }
-    );
-  }
+  await convex.mutation(api.system.updateExportStatus, {
+    internalKey,
+    projectId: projectId as Id<"projects">,
+    status: "exporting",
+  });
 
   const event = await inngest.send({
     name: "github/export.repo",
     data: {
       projectId,
-      repoName,
-      visibility,
-      description,
       githubToken,
-      internalKey,
     },
   });
 
-  return NextResponse.json({ 
-    success: true, 
-    projectId, 
-    eventId: event.ids[0]
+  return NextResponse.json({
+    success: true,
+    eventId: event.ids[0],
   });
 };

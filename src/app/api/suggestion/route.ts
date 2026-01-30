@@ -93,7 +93,4 @@ export async function POST(request: Request) {
     console.error("Suggestion error: ", error);
     return NextResponse.json(
       { error: "Failed to generate suggestion" },
-      { status: 500 },
-    );
-  }
 }

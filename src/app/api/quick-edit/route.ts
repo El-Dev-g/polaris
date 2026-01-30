@@ -112,7 +112,4 @@ export async function POST(request: Request) {
     console.error("Edit error:", error);
     return NextResponse.json(
       { error: "Failed to generate edit" },
-      { status: 500 }
-    );
-  }
 };

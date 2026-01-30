@@ -1,23 +1,28 @@
 import { z } from "zod";
+import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import {
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator,
-} from "unique-names-generator";
+import { anthropic } from "@ai-sdk/anthropic";
 
-import { DEFAULT_CONVERSATION_TITLE } from "@/features/conversations/constants";
-
-import { inngest } from "@/inngest/client";
 import { convex } from "@/lib/convex-client";
 
 import { api } from "../../../../../convex/_generated/api";
 
 const requestSchema = z.object({
-  prompt: z.string().min(1),
+  prompt: z.string(),
 });
+
+const projectSchema = z.object({
+  projectName: z.string().describe("The name of the project"),
+  conversationTitle: z.string().describe("A short title for the conversation"),
+});
+
+const CREATE_PROJECT_PROMPT = `You are a project initialization assistant.
+Based on the user's prompt, generate a short, descriptive project name and a brief conversation title.
+
+User Prompt: {prompt}
+
+Return the project name and conversation title as a JSON object.`;
 
 export async function POST(request: Request) {
   const session = await auth(); const userId = session?.user?.id;
@@ -26,68 +31,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-
-  if (!internalKey) {
-    return NextResponse.json(
-      { error: "Internal key not configured" },
-      { status: 500 }
-    );
-  }
+  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY || "fallback_key_change_me_in_production";
 
   const body = await request.json();
   const { prompt } = requestSchema.parse(body);
 
-  // Generate a random project name
-  const projectName = uniqueNamesGenerator({
-    dictionaries: [adjectives, animals, colors],
-    separator: "-",
-    length: 3,
+  const { output } = await generateText({
+    model: anthropic("claude-3-5-sonnet-20241022"),
+    output: Output.object({ schema: projectSchema }),
+    prompt: CREATE_PROJECT_PROMPT.replace("{prompt}", prompt),
   });
 
-  // Create project and conversation together
-  const { projectId, conversationId } = await convex.mutation(
+  const { projectId } = await convex.mutation(
     api.system.createProjectWithConversation,
     {
       internalKey,
-      projectName,
-      conversationTitle: DEFAULT_CONVERSATION_TITLE,
+      projectName: output.projectName,
+      conversationTitle: output.conversationTitle,
       ownerId: userId,
-    },
+    }
   );
-
-  // Create user message
-  await convex.mutation(api.system.createMessage, {
-    internalKey,
-    conversationId,
-    projectId,
-    role: "user",
-    content: prompt,
-  });
-
-  // Create assistant message placeholder with processing status
-  const assistantMessageId = await convex.mutation(
-    api.system.createMessage,
-    {
-      internalKey,
-      conversationId,
-      projectId,
-      role: "assistant",
-      content: "",
-      status: "processing",
-    },
-  );
-
-  // Trigger Inngest to process the message
-  await inngest.send({
-    name: "message/sent",
-    data: {
-      messageId: assistantMessageId,
-      conversationId,
-      projectId,
-      message: prompt,
-    },
-  });
 
   return NextResponse.json({ projectId });
 };

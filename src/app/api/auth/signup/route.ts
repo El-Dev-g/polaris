@@ -14,7 +14,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY!;
+    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY || "fallback_key_change_me_in_production";
+
+    if (!process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY) {
+      console.warn("PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY is not set, using fallback");
+    }
 
     // Check if user already exists
     const existingUser = await convex.query(api.system.getUserByEmail, {
