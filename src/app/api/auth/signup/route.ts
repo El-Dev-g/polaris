@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const internalKey = process.env.POLARIS_CONVEX_INTERNAL_KEY!;
+    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY!;
 
     // Check if user already exists
     const existingUser = await convex.query(api.system.getUserByEmail, {

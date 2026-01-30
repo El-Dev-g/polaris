@@ -56,7 +56,7 @@ export default function SignInPage() {
             <Code2 className="text-primary-foreground w-7 h-7" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground">Sign in to your Polaris account</p>
+          <p className="text-muted-foreground">Sign in to your Prigidfy Studio account</p>
         </div>
 
         <div className="space-y-4">

@@ -16,7 +16,7 @@ export const LandingPage = () => {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Code2 className="text-primary-foreground w-5 h-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight">Polaris</span>
+          <span className="text-xl font-bold tracking-tight">Prigidfy Studio</span>
         </div>
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => router.push("/auth/signin")}>Sign In</Button>
@@ -43,7 +43,7 @@ export const LandingPage = () => {
               <span className="text-primary">thought.</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Polaris is an AI-native IDE in your browser. Real-time collaboration,
+              Prigidfy Studio is an AI-native IDE in your browser. Real-time collaboration,
               intelligent suggestions, and instant deployment.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -83,7 +83,7 @@ export const LandingPage = () => {
       </main>
 
       <footer className="px-6 py-12 border-t border-border/40 text-center text-muted-foreground text-sm">
-        <p>© 2024 Polaris IDE. Built for the modern developer.</p>
+        <p>© 2024 Prigidfy Studio IDE. Built for the modern developer.</p>
       </footer>
     </div>
   );

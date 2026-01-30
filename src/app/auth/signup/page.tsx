@@ -66,7 +66,7 @@ export default function SignUpPage() {
             <Code2 className="text-primary-foreground w-7 h-7" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Create account</h1>
-          <p className="text-muted-foreground">Start your journey with Polaris</p>
+          <p className="text-muted-foreground">Start your journey with Prigidfy Studio</p>
         </div>
 
         <div className="space-y-4">

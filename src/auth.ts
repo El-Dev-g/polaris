@@ -17,7 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const internalKey = process.env.POLARIS_CONVEX_INTERNAL_KEY!
+        const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY!
         const user = await convex.query(api.system.getUserByEmail, {
           internalKey,
           email: credentials.email as string
@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "github") {
-        const internalKey = process.env.POLARIS_CONVEX_INTERNAL_KEY!
+        const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY!
         await convex.mutation(api.system.createUser, {
           internalKey,
           email: user.email!,

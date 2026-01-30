@@ -9,7 +9,7 @@ export default auth((req) => {
 
   if (isDashboardRoute || isProjectsRoute) {
     if (!isAuthenticated) {
-      return Response.redirect(new URL("/", nextUrl));
+      return Response.redirect(new URL("/auth/signin", nextUrl));
     }
   }
 
