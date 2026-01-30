@@ -20,6 +20,12 @@ const font = Poppins({
 })
 
 export const ProjectsView = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
@@ -46,6 +52,9 @@ export const ProjectsView = () => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>

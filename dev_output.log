@@ -17,3 +17,8 @@
  GET /api/auth/session 200 in 2.8s (compile: 2.7s, proxy.ts: 33ms, render: 47ms)
  GET /api/auth/session 200 in 151ms (compile: 86ms, proxy.ts: 22ms, render: 43ms)
 ✓ Compiled in 133ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Compiled in 5.2s
+✓ Compiled in 994ms
+✓ Compiled in 245ms
+✓ Compiled in 63ms

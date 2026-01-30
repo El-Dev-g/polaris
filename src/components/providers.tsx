@@ -9,7 +9,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { ThemeProvider } from "./theme-provider";
 import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL || "");
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const { status } = useSession();

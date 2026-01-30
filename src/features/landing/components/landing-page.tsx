@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -7,6 +8,15 @@ import { ArrowRight, Code2, Sparkles, Zap, Github } from "lucide-react";
 
 export const LandingPage = () => {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/30">
