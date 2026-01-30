@@ -20,21 +20,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-
-  if (!internalKey) {
-    return NextResponse.json(
-      { error: "Internal key not configured" },
-      { status: 500 }
-    );
-  }
 
   const body = await request.json();
   const { conversationId, message } = requestSchema.parse(body);
 
   // Call convex mutation, query
   const conversation = await convex.query(api.system.getConversationById, {
-    internalKey,
     conversationId: conversationId as Id<"conversations">,
   });
 
@@ -51,7 +42,6 @@ export async function POST(request: Request) {
   const processingMessages = await convex.query(
     api.system.getProcessingMessages,
     {
-      internalKey,
       projectId,
     }
   );
@@ -68,7 +58,6 @@ export async function POST(request: Request) {
         });
 
         await convex.mutation(api.system.updateMessageStatus, {
-          internalKey,
           messageId: msg._id,
           status: "cancelled",
         });
@@ -78,7 +67,6 @@ export async function POST(request: Request) {
 
   // Create user message
   await convex.mutation(api.system.createMessage, {
-    internalKey,
     conversationId: conversationId as Id<"conversations">,
     projectId,
     role: "user",
@@ -89,7 +77,6 @@ export async function POST(request: Request) {
   const assistantMessageId = await convex.mutation(
     api.system.createMessage,
     {
-      internalKey,
       conversationId: conversationId as Id<"conversations">,
       projectId,
       role: "assistant",

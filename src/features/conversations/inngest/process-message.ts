@@ -37,19 +37,15 @@ export const processMessage = inngest.createFunction(
     ],
     onFailure: async ({ event, step }) => {
       const { messageId } = event.data.event.data as MessageEvent;
-      const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
 
       // Update the message with error content
-      if (internalKey) {
-        await step.run("update-message-on-failure", async () => {
-          await convex.mutation(api.system.updateMessageContent, {
-            internalKey,
-            messageId,
-            content:
-              "My apologies, I encountered an error while processing your request. Let me know if you need anything else!",
-          });
+      await step.run("update-message-on-failure", async () => {
+        await convex.mutation(api.system.updateMessageContent, {
+          messageId,
+          content:
+            "My apologies, I encountered an error while processing your request. Let me know if you need anything else!",
         });
-      }
+      });
     }
   },
   {
@@ -63,19 +59,12 @@ export const processMessage = inngest.createFunction(
       message
     } = event.data as MessageEvent;
 
-    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-
-    if (!internalKey) {
-      throw new NonRetriableError("PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY is not configured");
-    }
-
     // TODO: Check if this is needed
     await step.sleep("wait-for-db-sync", "1s");
 
     // Get conversation for title generation check
     const conversation = await step.run("get-conversation", async () => {
       return await convex.query(api.system.getConversationById, {
-        internalKey,
         conversationId,
       });
     });
@@ -87,7 +76,6 @@ export const processMessage = inngest.createFunction(
     // Fetch recent messages for conversation context
     const recentMessages = await step.run("get-recent-messages", async () => {
       return await convex.query(api.system.getRecentMessages, {
-        internalKey,
         conversationId,
         limit: 10,
       });
@@ -141,7 +129,6 @@ export const processMessage = inngest.createFunction(
         if (title) {
           await step.run("update-conversation-title", async () => {
             await convex.mutation(api.system.updateConversationTitle, {
-              internalKey,
               conversationId,
               title,
             });
@@ -160,13 +147,13 @@ export const processMessage = inngest.createFunction(
         defaultParameters: { temperature: 0.3, max_tokens: 16000 }
        }),
        tools: [
-        createListFilesTool({ internalKey, projectId }),
-        createReadFilesTool({ internalKey }),
-        createUpdateFileTool({ internalKey }),
-        createCreateFilesTool({ projectId, internalKey }),
-        createCreateFolderTool({ projectId, internalKey }),
-        createRenameFileTool({ internalKey }),
-        createDeleteFilesTool({ internalKey }),
+        createListFilesTool({ projectId }),
+        createReadFilesTool(),
+        createUpdateFileTool(),
+        createCreateFilesTool({ projectId }),
+        createCreateFolderTool({ projectId }),
+        createRenameFileTool(),
+        createDeleteFilesTool(),
         createScrapeUrlsTool(),
        ],
     });
@@ -216,7 +203,6 @@ export const processMessage = inngest.createFunction(
     // Update the assistant message with the response (this also sets status to completed)
     await step.run("update-assistant-message", async () => {
       await convex.mutation(api.system.updateMessageContent, {
-        internalKey,
         messageId,
         content: assistantResponse,
       })
@@ -225,4 +211,3 @@ export const processMessage = inngest.createFunction(
     return { success: true, messageId, conversationId };
   }
 );
-

@@ -14,11 +14,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY!;
+
 
     // Check if user already exists
     const existingUser = await convex.query(api.system.getUserByEmail, {
-      internalKey,
       email,
     });
 
@@ -32,7 +31,6 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await convex.mutation(api.system.createUser, {
-      internalKey,
       email,
       password: hashedPassword,
       name: name || undefined,
