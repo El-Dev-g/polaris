@@ -1,11 +1,10 @@
 import { MutationCtx, QueryCtx } from "./_generated/server";
 
 export const verifyAuth = async (ctx: QueryCtx | MutationCtx) => {
-  const identity = await ctx.auth.getUserIdentity();
-
-  if (!identity) {
-    throw new Error("Unauthorized");
+  try {
+    const identity = await ctx.auth.getUserIdentity();
+    return identity;
+  } catch (error) {
+    return null;
   }
-
-  return identity;
 };

@@ -1,11 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Code2, Sparkles, Zap, Github } from "lucide-react";
 
 export const LandingPage = () => {
+  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/30">
       {/* Navigation */}
@@ -14,11 +26,11 @@ export const LandingPage = () => {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Code2 className="text-primary-foreground w-5 h-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight">Polaris</span>
+          <span className="text-xl font-bold tracking-tight">Prigidfy Studio</span>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => signIn("github")}>Sign In</Button>
-          <Button onClick={() => signIn("github")} className="gap-2">
+          <Button variant="ghost" onClick={() => router.push("/auth/signin")}>Sign In</Button>
+          <Button onClick={() => router.push("/auth/signin")} className="gap-2">
             Get Started <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
@@ -41,12 +53,12 @@ export const LandingPage = () => {
               <span className="text-primary">thought.</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Polaris is an AI-native IDE in your browser. Real-time collaboration,
+              Prigidfy Studio is an AI-native IDE in your browser. Real-time collaboration,
               intelligent suggestions, and instant deployment.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="h-12 px-8 text-lg gap-2" onClick={() => signIn("github")}>
-                <Github className="w-5 h-5" /> Start Coding with GitHub
+              <Button size="lg" className="h-12 px-8 text-lg gap-2" onClick={() => router.push("/auth/signin")}>
+                Get Started for Free
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8 text-lg">
                 View Demo
@@ -81,7 +93,7 @@ export const LandingPage = () => {
       </main>
 
       <footer className="px-6 py-12 border-t border-border/40 text-center text-muted-foreground text-sm">
-        <p>© 2024 Polaris IDE. Built for the modern developer.</p>
+        <p>© 2024 Prigidfy Studio IDE. Built for the modern developer.</p>
       </footer>
     </div>
   );

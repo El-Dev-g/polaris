@@ -2,6 +2,14 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  users: defineTable({
+    email: v.string(),
+    password: v.optional(v.string()), // Hashed
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    githubId: v.optional(v.string()),
+  }).index("by_email", ["email"]),
+
   projects: defineTable({
     name: v.string(),
     ownerId: v.string(),

@@ -207,7 +207,7 @@ export const ConversationSidebar = ({
           >
             <PromptInputBody>
               <PromptInputTextarea
-                placeholder="Ask Polaris anything..."
+                placeholder="Ask Prigidfy Studio anything..."
                 onChange={(e) => setInput(e.target.value)}
                 value={input}
                 disabled={isProcessing}

@@ -95,7 +95,7 @@ export const Navbar = ({
                         font.className,
                       )}
                     >
-                      Polaris
+                      Prigidfy Studio
                     </span>
                   </Link>
                 </Button>

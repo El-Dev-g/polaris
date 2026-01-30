@@ -20,6 +20,12 @@ const font = Poppins({
 })
 
 export const ProjectsView = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
@@ -46,6 +52,9 @@ export const ProjectsView = () => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -67,12 +76,12 @@ export const ProjectsView = () => {
           <div className="flex justify-between gap-4 w-full items-center">
 
             <div className="flex items-center gap-2 w-full group/logo">
-              <img src="/logo.svg" alt="Polaris" className="size-[32px] md:size-[46px]" />
+              <img src="/logo.svg" alt="Prigidfy Studio" className="size-[32px] md:size-[46px]" />
               <h1 className={cn(
                 "text-4xl md:text-5xl font-semibold",
                 font.className,
               )}>
-                Polaris
+                Prigidfy Studio
               </h1>
             </div>
 

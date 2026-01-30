@@ -25,7 +25,7 @@ export default withSentryConfig(nextConfig, {
 
   org: "john-doe-fb",
 
-  project: "polaris",
+  project: "prigidfy-studio",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
