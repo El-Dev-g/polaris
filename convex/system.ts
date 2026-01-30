@@ -630,3 +630,55 @@ export const createProjectWithConversation = mutation({
     return { projectId, conversationId };
   },
 });
+
+export const getUserByEmail = query({
+  args: {
+    internalKey: v.string(),
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+  },
+});
+
+export const createUser = mutation({
+  args: {
+    internalKey: v.string(),
+    email: v.string(),
+    password: v.optional(v.string()),
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    githubId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (existing) {
+      // Update existing user if needed (e.g. adding githubId)
+      await ctx.db.patch(existing._id, {
+        githubId: args.githubId ?? existing.githubId,
+        name: args.name ?? existing.name,
+        image: args.image ?? existing.image,
+      });
+      return existing._id;
+    }
+
+    return await ctx.db.insert("users", {
+      email: args.email,
+      password: args.password,
+      name: args.name,
+      image: args.image,
+      githubId: args.githubId,
+    });
+  },
+});

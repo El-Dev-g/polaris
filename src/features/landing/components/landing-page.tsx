@@ -2,10 +2,12 @@
 
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Code2, Sparkles, Zap, Github } from "lucide-react";
 
 export const LandingPage = () => {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/30">
       {/* Navigation */}
@@ -17,8 +19,8 @@ export const LandingPage = () => {
           <span className="text-xl font-bold tracking-tight">Polaris</span>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => signIn("github")}>Sign In</Button>
-          <Button onClick={() => signIn("github")} className="gap-2">
+          <Button variant="ghost" onClick={() => router.push("/auth/signin")}>Sign In</Button>
+          <Button onClick={() => router.push("/auth/signin")} className="gap-2">
             Get Started <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
@@ -45,8 +47,8 @@ export const LandingPage = () => {
               intelligent suggestions, and instant deployment.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="h-12 px-8 text-lg gap-2" onClick={() => signIn("github")}>
-                <Github className="w-5 h-5" /> Start Coding with GitHub
+              <Button size="lg" className="h-12 px-8 text-lg gap-2" onClick={() => router.push("/auth/signin")}>
+                Get Started for Free
               </Button>
               <Button size="lg" variant="outline" className="h-12 px-8 text-lg">
                 View Demo
