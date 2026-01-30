@@ -10,6 +10,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -37,6 +38,7 @@ export const getById = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const conversation = await ctx.db.get("conversations", args.id);
 
@@ -64,6 +66,7 @@ export const getByProject = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -89,6 +92,7 @@ export const getMessages = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     const conversation = await ctx.db.get("conversations", args.conversationId);
 

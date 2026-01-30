@@ -8,6 +8,7 @@ export const getFiles = query({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -30,6 +31,7 @@ export const getFile = query({
   args: { id: v.id("files") },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const file = await ctx.db.get("files", args.id);
 
@@ -63,6 +65,7 @@ export const getFilePath = query({
   args: { id: v.id("files") },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const file = await ctx.db.get("files", args.id);
 
@@ -104,6 +107,7 @@ export const getFolderContents = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -145,6 +149,7 @@ export const createFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -197,6 +202,7 @@ export const createFolder = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.projectId);
 
@@ -247,6 +253,7 @@ export const renameFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const file = await ctx.db.get("files", args.id);
 
@@ -305,6 +312,7 @@ export const deleteFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const file = await ctx.db.get("files", args.id);
 
@@ -368,6 +376,7 @@ export const updateFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const file = await ctx.db.get("files", args.id);
 
