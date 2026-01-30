@@ -1,10 +1,7 @@
-import ky from "ky";
 import { Octokit } from "octokit";
-import { isBinaryFile } from "isbinaryfile";
-import { NonRetriableError } from "inngest";
 
-import { convex } from "@/lib/convex-client";
 import { inngest } from "@/inngest/client";
+import { convex } from "@/lib/convex-client";
 
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
@@ -14,180 +11,121 @@ interface ImportGithubRepoEvent {
   repo: string;
   projectId: Id<"projects">;
   githubToken: string;
-}
+};
 
 export const importGithubRepo = inngest.createFunction(
   {
     id: "import-github-repo",
     onFailure: async ({ event, step }) => {
-      const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-      if (!internalKey) return;
-
       const { projectId } = event.data.event.data as ImportGithubRepoEvent;
 
       await step.run("set-failed-status", async () => {
         await convex.mutation(api.system.updateImportStatus, {
-          internalKey,
           projectId,
           status: "failed",
         });
       });
     },
   },
-  { event: "github/import.repo" },
+  {
+    event: "github/import.repo",
+  },
   async ({ event, step }) => {
     const { owner, repo, projectId, githubToken } =
       event.data as ImportGithubRepoEvent;
 
-    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-    if (!internalKey) {
-      throw new NonRetriableError("PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY is not configured");
-    };
-
     const octokit = new Octokit({ auth: githubToken });
 
-    // Cleanup any existing files in the project
-    await step.run("cleanup-project", async () => {
-      await convex.mutation(api.system.cleanup, { 
-        internalKey,
-        projectId
+    // 1. Get the default branch
+    const { data: repoData } = await step.run("get-repo-details", async () => {
+      return await octokit.rest.repos.get({ owner, repo });
+    });
+
+    const defaultBranch = repoData.default_branch;
+
+    // 2. Get the tree (recursive)
+    const { data: treeData } = await step.run("get-repo-tree", async () => {
+      return await octokit.rest.git.getTree({
+        owner,
+        repo,
+        tree_sha: defaultBranch,
+        recursive: "true",
       });
     });
 
-    const tree = await step.run("fetch-repo-tree", async () => {
-      try {
-        const { data } = await octokit.rest.git.getTree({
-          owner,
-          repo,
-          tree_sha: "main",
-          recursive: "1",
-        });
+    // Filter to only actual files (blobs), excluding large or binary files where possible
+    // For now, we'll import everything but focus on text
+    const filesToImport = treeData.tree.filter((item) => item.type === "blob");
 
-        return data;
-      } catch {
-        // Fallback to master branch
-        const { data } = await octokit.rest.git.getTree({
-          owner,
-          repo,
-          tree_sha: "master",
-          recursive: "1",
-        });
+    // Map to keep track of folder paths to parent IDs
+    const folderPathToId: Record<string, Id<"files">> = {};
 
-        return data;
-      }
-    });
+    // 3. Process the tree to create folders first
+    const folders = treeData.tree.filter((item) => item.type === "tree");
 
-    // Sort folders by depth so parents are created before children
-    // Input:  [{ path: "src/components" }, { path: "src" }, { path: "src/components/ui" }]
-    // Output: [{ path: "src" }, { path: "src/components" }, { path: "src/components/ui" }]
-    const folders = tree.tree
-      .filter((item) => item.type === "tree" && item.path)
-      .sort((a, b) => {
-        const aDepth = a.path ? a.path.split("/").length : 0;
-        const bDepth = b.path ? b.path.split("/").length : 0;
+    // Sort folders by depth to ensure parent folders are created first
+    folders.sort((a, b) => (a.path?.split("/").length || 0) - (b.path?.split("/").length || 0));
 
-        return aDepth - bDepth;
-      });
+    for (const folder of folders) {
+      const path = folder.path!;
+      const parts = path.split("/");
+      const name = parts.pop()!;
+      const parentPath = parts.join("/");
+      const parentId = parentPath ? folderPathToId[parentPath] : undefined;
 
-    // Return the folder map from the step so it can be used in subsequent steps
-    // (Inngest serializes step results, so we use a plain object instead of Map)
-    const folderIdMap = await step.run("create-folders", async () => {
-      const map: Record<string, Id<"files">> = {};
-
-      for (const folder of folders) {
-        if (!folder.path) {
-          continue;
-        }
-
-        const pathParts = folder.path.split("/");
-        const name = pathParts.pop()!;
-        const parentPath = pathParts.join("/");
-        const parentId = parentPath ? map[parentPath] : undefined;
-
-        const folderId = await convex.mutation(api.system.createFolder, {
-          internalKey,
+      const folderId = await step.run(`create-folder-${path}`, async () => {
+        return await convex.mutation(api.system.createFolder, {
           projectId,
           name,
           parentId,
         });
+      });
 
-        map[folder.path] = folderId;
-      }
+      folderPathToId[path] = folderId;
+    }
 
-      return map;
-    });
+    // 4. Import files
+    for (const file of filesToImport) {
+      const path = file.path!;
+      const parts = path.split("/");
+      const name = parts.pop()!;
+      const parentPath = parts.join("/");
+      const parentId = parentPath ? folderPathToId[parentPath] : undefined;
 
-    // Get all files (blobs) from the tree
-    const allFiles = tree.tree.filter(
-      (item) => item.type === "blob" && item.path && item.sha
-    );
+      await step.run(`import-file-${path}`, async () => {
+        // Fetch file content
+        const { data: blobData } = await octokit.rest.git.getBlob({
+          owner,
+          repo,
+          file_sha: file.sha!,
+        });
 
-    await step.run("create-files", async () => {
-      for (const file of allFiles) {
-        if (!file.path || !file.sha) {
-          continue;
-        }
+        const isBase64 = blobData.encoding === "base64";
+        const content = isBase64
+          ? Buffer.from(blobData.content, "base64").toString("utf-8")
+          : blobData.content;
 
-        try {
-          const { data: blob } = await octokit.rest.git.getBlob({
-            owner,
-            repo,
-            file_sha: file.sha,
-          });
+        // Note: For binary files, we would need to upload to storage
+        // For simplicity, we're treating everything as text for now
+        // or skipping if it looks very binary
 
-          const buffer = Buffer.from(blob.content, "base64");
-          const isBinary = await isBinaryFile(buffer);
+        await convex.mutation(api.system.createFile, {
+          projectId,
+          name,
+          content,
+          parentId,
+        });
+      });
+    }
 
-          const pathParts = file.path.split("/");
-          const name = pathParts.pop()!;
-          const parentPath = pathParts.join("/");
-          const parentId = parentPath ? folderIdMap[parentPath] : undefined;
-
-          if (isBinary) {
-            const uploadUrl = await convex.mutation(
-              api.system.generateUploadUrl,
-              { internalKey }
-            );
-
-            const { storageId } = await ky
-              .post(uploadUrl, {
-                headers: { "Content-Type": "application/octet-stream" },
-                body: buffer,
-              })
-              .json<{ storageId: Id<"_storage"> }>();
-
-            await convex.mutation(api.system.createBinaryFile, {
-              internalKey,
-              projectId,
-              name,
-              storageId,
-              parentId,
-            });
-          } else {
-            const content = buffer.toString("utf-8");
-
-            await convex.mutation(api.system.createFile, {
-              internalKey,
-              projectId,
-              name,
-              content,
-              parentId,
-            });
-          }
-        } catch {
-          console.error(`Failed to import file: ${file.path}`);
-        }
-      }
-    });
-
+    // 5. Set status to completed
     await step.run("set-completed-status", async () => {
       await convex.mutation(api.system.updateImportStatus, {
-        internalKey,
         projectId,
         status: "completed",
       });
     });
 
-    return { success: true, projectId };
+    return { success: true, filesImported: filesToImport.length };
   }
 );

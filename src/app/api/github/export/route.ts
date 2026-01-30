@@ -36,10 +36,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY || "fallback_key_change_me_in_production";
 
   await convex.mutation(api.system.updateExportStatus, {
-    internalKey,
     projectId: projectId as Id<"projects">,
     status: "exporting",
   });

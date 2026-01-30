@@ -8,7 +8,7 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 
 interface CreateFilesToolOptions {
   projectId: Id<"projects">;
-  internalKey: string;
+
 }
 
 const paramsSchema = z.object({
@@ -25,7 +25,6 @@ const paramsSchema = z.object({
 
 export const createCreateFilesTool = ({
   projectId,
-  internalKey,
 }: CreateFilesToolOptions) => {
   return createTool({
     name: "createFiles",
@@ -62,7 +61,6 @@ export const createCreateFilesTool = ({
             try {
               resolvedParentId = parentId as Id<"files">;
               const parentFolder = await convex.query(api.system.getFileById, {
-                internalKey,
                 fileId: resolvedParentId,
               });
               if (!parentFolder) {
@@ -77,7 +75,6 @@ export const createCreateFilesTool = ({
           }
 
           const results = await convex.mutation(api.system.createFiles, {
-            internalKey,
             projectId,
             parentId: resolvedParentId,
             files,

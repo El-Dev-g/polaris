@@ -8,12 +8,11 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 
 interface ListFilesToolOptions {
   projectId: Id<"projects">;
-  internalKey: string;
+
 }
 
 export const createListFilesTool = ({
   projectId,
-  internalKey,
 }: ListFilesToolOptions) => {
   return createTool({
     name: "listFiles",
@@ -24,7 +23,6 @@ export const createListFilesTool = ({
       try {
         return await toolStep?.run("list-files", async () => {
           const files = await convex.query(api.system.getProjectFiles, {
-            internalKey,
             projectId,
           });
 

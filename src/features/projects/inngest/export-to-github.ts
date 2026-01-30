@@ -30,14 +30,10 @@ export const exportToGithub = inngest.createFunction(
       },
     ],
     onFailure: async ({ event, step }) => {
-      const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-      if (!internalKey) return;
-
       const { projectId } = event.data.event.data as ExportToGithubEvent;
 
       await step.run("set-failed-status", async () => {
         await convex.mutation(api.system.updateExportStatus, {
-          internalKey,
           projectId,
           status: "failed",
         });
@@ -56,15 +52,10 @@ export const exportToGithub = inngest.createFunction(
       githubToken,
     } = event.data as ExportToGithubEvent;
 
-    const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY;
-    if (!internalKey) {
-      throw new NonRetriableError("PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY is not configured");
-    };
 
     // Set status to exporting
     await step.run("set-exporting-status", async () => {
       await convex.mutation(api.system.updateExportStatus, {
-        internalKey,
         projectId,
         status: "exporting",
       });
@@ -103,7 +94,6 @@ export const exportToGithub = inngest.createFunction(
     // Fetch all project files with storage URLs
     const files = await step.run("fetch-project-files", async () => {
       return (await convex.query(api.system.getProjectFilesWithUrls, {
-        internalKey,
         projectId,
       })) as FileWithUrl[];
     });
@@ -229,7 +219,6 @@ export const exportToGithub = inngest.createFunction(
     // Set status to completed with repo URL
     await step.run("set-completed-status", async () => {
       await convex.mutation(api.system.updateExportStatus, {
-        internalKey,
         projectId,
         status: "completed",
         repoUrl: repo.html_url,

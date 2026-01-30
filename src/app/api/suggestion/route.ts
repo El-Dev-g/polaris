@@ -36,7 +36,7 @@ Follow these steps IN ORDER:
 
 1. First, look at next_lines. If next_lines contains ANY code, check if it continues from where the cursor is. If it does, return empty string immediately - the code is already written.
 
-2. Check if before_cursor ends with a complete statement (;, }, )). If yes, return empty string.
+2. Check if before_cursor ends with a complete statement (;}, )). If yes, return empty string.
 
 3. Only if steps 1 and 2 don't apply: suggest what should be typed at the cursor position, using context from full_code.
 

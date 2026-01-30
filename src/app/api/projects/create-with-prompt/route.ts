@@ -31,7 +31,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const internalKey = process.env.PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY || "fallback_key_change_me_in_production";
 
   const body = await request.json();
   const { prompt } = requestSchema.parse(body);
@@ -45,7 +44,6 @@ export async function POST(request: Request) {
   const { projectId } = await convex.mutation(
     api.system.createProjectWithConversation,
     {
-      internalKey,
       projectName: output.projectName,
       conversationTitle: output.conversationTitle,
       ownerId: userId,

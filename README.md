@@ -105,8 +105,8 @@ Prigidfy Studio is a browser-based IDE inspired by Cursor AI, featuring:
 
    # Convex
    NEXT_PUBLIC_CONVEX_URL=
+   CONVEX_URL=
    CONVEX_DEPLOYMENT=
-   PRIGIDFY_STUDIO_CONVEX_INTERNAL_KEY=  # Generate a random string
 
    # AI Provider (choose one)
    ANTHROPIC_API_KEY=        # Preferred - Claude Sonnet 4
