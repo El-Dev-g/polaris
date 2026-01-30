@@ -1,10 +1,10 @@
 import { createAgent, anthropic, createNetwork } from '@inngest/agent-kit';
 
 import { inngest } from "@/inngest/client";
-import { Id } from "../../../../convex/_generated/dataModel";
+import { Id } from "../../../../../convex/_generated/dataModel";
 import { NonRetriableError } from "inngest";
 import { convex } from "@/lib/convex-client";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { 
   CODING_AGENT_SYSTEM_PROMPT, 
   TITLE_GENERATOR_SYSTEM_PROMPT
