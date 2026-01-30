@@ -16,6 +16,8 @@ const paramsSchema = z.object({
     .min(1, "Provide at least one file ID"),
 });
 
+export const createReadFilesTool = ({
+}: ReadFilesToolOptions) => {
   return createTool({
     name: "readFiles",
     description: "Read the content of files from the project. Returns file contents.",
