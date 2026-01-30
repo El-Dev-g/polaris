@@ -8,7 +8,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { SignInButton } from "@clerk/nextjs";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 export const UnauthenticatedView = () => {
@@ -26,11 +26,9 @@ export const UnauthenticatedView = () => {
             </ItemDescription>
           </ItemContent>
           <ItemActions>
-            <SignInButton>
-              <Button variant="outline" size="sm">
-                Sign in
-              </Button>
-            </SignInButton>
+            <Button variant="outline" size="sm" onClick={() => signIn("github")}>
+              Sign in
+            </Button>
           </ItemActions>
         </Item>
       </div>

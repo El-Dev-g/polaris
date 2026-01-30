@@ -3,7 +3,6 @@ import ky, { HTTPError } from "ky";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useForm } from "@tanstack/react-form";
-import { useClerk } from "@clerk/nextjs";
 import { FaGithub } from "react-icons/fa";
 import {
   CheckCheckIcon,
@@ -55,7 +54,6 @@ interface ExportPopoverProps {
 export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
   const project = useProject(projectId);
   const [open, setOpen] = React.useState(false);
-  const { openUserProfile } = useClerk();
 
   const exportStatus = project?.exportStatus;
   const exportRepoUrl = project?.exportRepoUrl;
@@ -86,23 +84,13 @@ export const ExportPopover = ({ projectId }: ExportPopoverProps) => {
         if (error instanceof HTTPError) {
           const body = await error.response.json<{ error: string }>();
           if (body.error?.includes("Pro plan required")) {
-            toast.error("Upgrade to import repositories", {
-              action: {
-                label: "Upgrade",
-                onClick: () => openUserProfile(),
-              },
-            });
+            toast.error("Upgrade to import repositories");
             setOpen(false);
             return;
           }
 
           if (body.error?.includes("GitHub not connected")) {
-            toast.error("GitHub account not connected", {
-              action: {
-                label: "Connect",
-                onClick: () => openUserProfile(),
-              },
-            });
+            toast.error("GitHub account not connected");
             setOpen(false);
             return;
           }
