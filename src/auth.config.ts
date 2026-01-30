@@ -4,7 +4,10 @@ import type { NextAuthConfig } from "next-auth"
 
 export const authConfig = {
   providers: [
-    GitHub,
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
     Credentials({
       name: "Credentials",
       credentials: {
@@ -12,7 +15,6 @@ export const authConfig = {
         password: { label: "Password", type: "password" }
       },
       async authorize() {
-        // This will be overridden in auth.ts for non-edge usage
         return null
       }
     })
@@ -35,8 +37,21 @@ export const authConfig = {
       }
       return session
     },
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user
+      const isDashboard = nextUrl.pathname.startsWith('/dashboard')
+      const isProjects = nextUrl.pathname.startsWith('/projects')
+
+      if (isDashboard || isProjects) {
+        if (isLoggedIn) return true
+        return false // Redirect to unauthenticated
+      }
+      return true
+    },
   },
   pages: {
     signIn: "/auth/signin",
-  }
+  },
+  secret: process.env.AUTH_SECRET,
+  trustHost: true,
 } satisfies NextAuthConfig

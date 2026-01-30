@@ -1,23 +1,7 @@
 import NextAuth from "next-auth"
 import { authConfig } from "./auth.config"
 
-const { auth } = NextAuth(authConfig)
-
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isAuthenticated = !!req.auth;
-
-  const isDashboardRoute = nextUrl.pathname.startsWith("/dashboard");
-  const isProjectsRoute = nextUrl.pathname.startsWith("/projects");
-
-  if (isDashboardRoute || isProjectsRoute) {
-    if (!isAuthenticated) {
-      return Response.redirect(new URL("/auth/signin", nextUrl));
-    }
-  }
-
-  return;
-})
+export default NextAuth(authConfig).auth
 
 export const config = {
   matcher: [

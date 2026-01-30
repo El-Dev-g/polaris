@@ -13,6 +13,7 @@ export const updateSettings = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.id);
 
@@ -37,6 +38,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const projectId = await ctx.db.insert("projects", {
       name: args.name,
@@ -54,6 +56,7 @@ export const getPartial = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     return await ctx.db
       .query("projects")
@@ -67,6 +70,7 @@ export const get = query({
   args: {},
   handler: async (ctx) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) return [];
 
     return await ctx.db
       .query("projects")
@@ -82,6 +86,7 @@ export const getById = query({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.id);
 
@@ -104,6 +109,7 @@ export const rename = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
+    if (!identity) throw new Error("Unauthorized");
 
     const project = await ctx.db.get("projects", args.id);
 
