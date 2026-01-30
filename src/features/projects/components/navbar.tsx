@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { CloudCheckIcon, LoaderIcon } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton } from "@/features/auth/components/user-button";
 import { Poppins } from "next/font/google";
 import { formatDistanceToNow } from "date-fns";
 

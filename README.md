@@ -25,7 +25,7 @@ Polaris is a browser-based IDE inspired by Cursor AI, featuring:
 | **Editor**    | CodeMirror 6, Custom Extensions, One Dark Theme             |
 | **Backend**   | Convex (Real-time DB), Inngest (Background Jobs)            |
 | **AI**        | Claude Sonnet 4 (preferred) or Gemini 2.0 Flash (free tier) |
-| **Auth**      | Clerk (with GitHub OAuth)                                   |
+| **Auth**      | NextAuth.js (with GitHub OAuth)                             |
 | **Execution** | WebContainer API, xterm.js                                  |
 | **UI**        | shadcn/ui, Radix UI                                         |
 
@@ -34,7 +34,7 @@ Polaris is a browser-based IDE inspired by Cursor AI, featuring:
 ### Phase 1: Foundation & Sponsor Technologies
 
 - **Chapter 1:** Project Setup, UI Library & Theme
-- **Chapter 2:** Clerk Authentication & Protected Routes
+- **Chapter 2:** NextAuth Authentication & Protected Routes
 - **Chapter 3:** Convex Database & Real-time Setup
 - **Chapter 4:** Inngest - Background Jobs & Non-Blocking UI
 - **Chapter 5:** Firecrawl - Teaching AI with Live Documentation
@@ -66,7 +66,7 @@ Polaris is a browser-based IDE inspired by Cursor AI, featuring:
 - Node.js 20.09+
 - npm or pnpm
 - Accounts needed:
-  - [Clerk](https://cwa.run/clerk) - Authentication
+  - [NextAuth.js](https://next-auth.js.org) - Authentication
   - [Convex](https://cwa.run/convex) - Database
   - [Inngest](https://cwa.run/inngest) - Background jobs
   - [Anthropic](https://anthropic.com) or [Google AI Studio](https://aistudio.google.com) - AI API (one required)
@@ -97,9 +97,11 @@ Polaris is a browser-based IDE inspired by Cursor AI, featuring:
 4. Configure your `.env.local` with the required keys:
 
    ```env
-   # Clerk
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-   CLERK_SECRET_KEY=
+   # NextAuth
+   AUTH_SECRET= # Generate with: npx auth secret
+   AUTH_GITHUB_ID=
+   AUTH_GITHUB_SECRET=
+   NEXTAUTH_URL=http://localhost:3000
 
    # Convex
    NEXT_PUBLIC_CONVEX_URL=
@@ -231,7 +233,7 @@ A huge thank you to the sponsors who made this tutorial possible. Consider check
 
 ### Authentication
 
-**[Clerk](https://cwa.run/clerk)** - Add authentication to your app in minutes, not days.
+**[NextAuth.js](https://next-auth.js.org)** - Flexible authentication for Next.js.
 
 ### Database
 

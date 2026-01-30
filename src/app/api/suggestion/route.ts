@@ -1,5 +1,5 @@
 import { generateText, Output } from "ai";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -45,7 +45,7 @@ Your suggestion is inserted immediately after the cursor, so never suggest code 
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json(
