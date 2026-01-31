@@ -15,8 +15,7 @@ const paramsSchema = z.object({
   content: z.string(),
 });
 
-export const createUpdateFileTool = ({
-}: UpdateFileToolOptions) => {
+export const createUpdateFileTool = (_options: UpdateFileToolOptions = {}) => {
   return createTool({
     name: "updateFile",
     description: "Update the content of an existing file",
