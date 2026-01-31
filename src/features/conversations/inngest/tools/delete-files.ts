@@ -16,8 +16,7 @@ const paramsSchema = z.object({
     .min(1, "Provide at least one file ID"),
 });
 
-export const createDeleteFilesTool = ({
-}: DeleteFilesToolOptions) => {
+export const createDeleteFilesTool = (_options: DeleteFilesToolOptions = {}) => {
   return createTool({
     name: "deleteFiles",
     description:

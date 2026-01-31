@@ -15,8 +15,7 @@ const paramsSchema = z.object({
   newName: z.string().min(1, "New name is required"),
 });
 
-export const createRenameFileTool = ({
-}: RenameFileToolOptions) => {
+export const createRenameFileTool = (_options: RenameFileToolOptions = {}) => {
   return createTool({
     name: "renameFile",
     description: "Rename a file or folder",

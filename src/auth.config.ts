@@ -29,8 +29,7 @@ export const authConfig = {
     },
     session({ session, token }) {
       if (token.accessToken) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session as any).accessToken = token.accessToken
+        session.accessToken = token.accessToken as string
       }
       if (token.id && session.user) {
         session.user.id = token.id as string
