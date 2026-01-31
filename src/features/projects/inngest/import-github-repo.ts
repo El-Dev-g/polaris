@@ -3,8 +3,8 @@ import { Octokit } from "octokit";
 import { inngest } from "@/inngest/client";
 import { convex } from "@/lib/convex-client";
 
-import { api } from "../../../../../convex/_generated/api";
-import { Id } from "../../../../../convex/_generated/dataModel";
+import { api } from "../../../../convex/_generated/api";
+import { Id } from "../../../../convex/_generated/dataModel";
 
 interface ImportGithubRepoEvent {
   owner: string;

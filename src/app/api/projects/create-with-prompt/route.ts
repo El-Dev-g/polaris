@@ -6,7 +6,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 
 import { convex } from "@/lib/convex-client";
 
-import { api } from "../../../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 
 const requestSchema = z.object({
   prompt: z.string(),
