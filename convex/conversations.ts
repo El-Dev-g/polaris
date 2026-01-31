@@ -193,6 +193,7 @@ export const deleteConversation = mutation({
 export const addMessage = mutation({
   args: {
     conversationId: v.id("conversations"),
+    projectId: v.id("projects"),
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
   },
@@ -215,10 +216,10 @@ export const addMessage = mutation({
     }
 
     const messageId = await ctx.db.insert("messages", {
+      projectId: args.projectId,
       conversationId: args.conversationId,
       role: args.role,
       content: args.content,
-      createdAt: Date.now(),
     });
 
     // Update conversation's updatedAt timestamp
